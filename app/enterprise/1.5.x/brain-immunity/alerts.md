@@ -43,34 +43,34 @@ curl -d '{"start":"2019-01-08 10:00:00", "end":"2019-01-09 23:30:00"}' \
  -X POST http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/alerts
 ```
 
-Or, you can access the alerts via browser, passing in the ‘start and end’ values as parameters like this:
+Or, you can access the alerts via browser, passing in the `start` and `end` values as parameters like this:
 
 ```
 http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/alerts?start=2019-01-01 00:00:00&end=2019-01-02 00:00:00
 ```
 
-The ‘/alerts’ endpoint uses these parameters, which you can mix and match according to your monitoring needs:
-* `start and end`: Returns only alerts generated between the values in start and end parameters passed.
-* `alert_type`: Returns only alerts of the alert_type specified in the alert_type parameter. This parameter does not accept lists of alert types. The value passed must be one of [‘query_params’, ‘statuscode’, ‘latency_ms’, ‘traffic’]
-* `url`: Returns only the alerts associated with the endpoint specified with URL parameter.
+The `/alerts` endpoint uses these parameters, which you can mix and match according to your monitoring needs:
+* `start` and `end`: Returns only alerts generated between the values in start and end parameters passed.
+* `alert_type`: Returns only alerts of the alert_type specified in the alert_type parameter. This parameter does not accept lists of alert types. The value passed must be one of [`query_params`, `statuscode`, `latency_ms`, `traffic`]
+* `url`: Returns only the alerts associated with the specified endpoint.
 * `method`: Returns only alerts with the method specified. Must be one of these values: GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, or TRACE. Full capitalization is necessary.
 * `workspace_name`: The name of the Kong Workspace for the alerts you want returned.
 * `route_id`: The Kong Route ID for the alerts you want returned.
 * `service_id`: The Kong Service ID for the alerts you want returned.
 * `system_restored`: A true/false value indicates you only want returned alerts where the system_restored value is matching the boolean value passed into this parameter.
-* `severity`: One of "low", "medium", "high" which will restricts returned alerts of severities matching the value provided with this parameter.
+* `severity`: One of `low`, `medium`, `high` which will restrict returned alerts to severities matching the value provided with this parameter.
 
 #### Alerts Object
 
-Two types of data are returned by the ‘/alerts’ endpoint. The first is a list of the alerts generated, which are structured like this:
+Two types of data are returned by the `/alerts` endpoint. The first is a list of generated alerts, which are structured like this:
 * `id`: The alert_id of the alert.
 * `detected_at`: The time when the generated alert was detected. This time also correlates with the last time point in the data time series that generated this alert. For example, if the alert was generated on data from 1:00 pm to 1:01 pm, then the detected_at time corresponds with the most recent time point of 1:01 pm in the data used to make the alert.
 * `detected_at_unix`: The time from detected_at expressed in Unix time.
 * `url`: The URL that generated this alert.
-* `alert_type`: The type of alert generated, will be one of [‘query_params’, ‘statuscode’, ‘latency_ms’, ‘traffic’].
+* `alert_type`: The type of alert generated, will be one of [`query_params`, `statuscode`, `latency_ms`, `traffic`].
 * `summary`: The summary of the alert generated, includes a description of the anomalous event for clarity.
-* `system_restored`: This parameter takes True or False as a value, and returns notifications where the anomalous event’s system_restored status matches the value passed in the parameter.
-* `severity`: The severity level of this alert, values of [low, medium, high].
+* `system_restored`: This parameter takes `true` or `false` as a value and returns notifications where the anomalous event’s system_restored status matches the value passed in the parameter.
+* `severity`: The severity level of this alert, values of [`low`, `medium`, `high`].
 
 #### Alerts Metadata
 
@@ -98,7 +98,7 @@ curl -d '{"start":"2019-01-08 10:00:00", "end":"2019-01-09 23:30:00"}' \
 or, in the browser like this:
 
 ```
-http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/trainer?start=&end=
+http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/trainer?start=2019-01-08 10:00:00&end=2019-01-09 23:30:00
 ```
 ** datetime value format: YYYY-MM-DD HH:mm:ss
 
@@ -113,27 +113,29 @@ curl -d '{"start":"2019-01-08 10:00:00", "end":"2019-01-09 23:30:00", "kong_enti
 
 ### Checking Models Trained
 
-Only endpoints + method combinations that have a model trained can be monitored for alerts. If you want to check which endpoints have models, you can use `http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/monitoredendpoints` which return a list of all models in the system. Each item in this list contains the following identifying information for the model:
+Only endpoints + method combinations that have a model trained can be monitored for alerts. If you want to check which endpoints have models, you can use `http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/monitoredendpoints` which returns a list of all models in the system. Each item in this list contains the following identifying information for the model:
 
 
 
 * `base_url`: The URL of the traffic used to train the model.
 * `method`: The method of the traffic used to train the model.
-* `route_id`: The Kong route_id that the traffic used to train the model is associated with. **service_id**: The Kong service_id that the traffic used to train the model is associated with. **model_version_id**: The model version number of the current, active model.
+* `route_id`: The Kong route_id that the traffic used to train the model is associated with.
+* `service_id`: The Kong service_id that the traffic used to train the model is associated with.
+* `model_version_id`: The model version number of the current, active model.
 * `active_models`: A json object containing information on the active status of each of the six (6) core alert types in Immunity (unknown_parameters, abnormal_value, latency, traffic, status codes, and value_type).
 
 
 
-In this object, the value is a specific alert type and the value is a boolean value where True indicates that the model is actively monitoring for that alert type.
+In this object, the value is a specific alert type and the value is a boolean value where `true` indicates that the model is actively monitoring for that alert type.
 
 
-In general, if a endpoint + method combination model does not appear on the returned object from `/monitoredendpoints`, this is likely because not enough traffic has been seen by Immunity to build a reliable model.
+In general, if an endpoint + method combination model does not appear on the returned object from `/monitoredendpoints`, this is likely because not enough traffic has been seen by Immunity to build a reliable model.
 
 ### Configure Auto-Training
 
 #### Restarting Training Schedules
 
-Immunity automatically sets up training jobs when it first starts up, and retrains all models on an optimized schedule based on time since data started flowing through Immunity. If you have experienced large changes in the type of data you expect to be coming through Immunity and do not feel comfortable choosing an "optimal" time period to use for retraining with the /trainer endpoint, you can re-trigger Immunity's auto-training by posting to the /trainer/reset endpoint. Immunity will then recreate its retraining schedule as if it was just being started and newly ingesting data.
+Immunity automatically sets up training jobs when it first starts up, and retrains all models on an optimized schedule based on time since data started flowing through Immunity. If you have experienced large changes in the type of data you expect to be coming through Immunity and do not feel comfortable choosing an "optimal" time period to use for retraining with the `/trainer` endpoint, you can re-trigger Immunity's auto-training by posting to the `/trainer/reset` endpoint. Immunity will then recreate its training schedule as if it was just being started and newly ingesting data.
 
 ```
 curl -X POST http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/trainer/reset
@@ -141,13 +143,13 @@ curl -X POST http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/trainer/reset
 
 #### Configuring Auto-Training Rules
 
-For best use, Immunity retrains on a regular basis. If you do not feel like you need to retrain your models regularly and are happy with the current model you have now, you can stop auto retraining via post request to the /trainer/config endpoint. This endpoint takes these parameters:
+For best use, Immunity retrains on a regular basis. If you do not feel like you need to retrain your models regularly and are happy with the current model you have now, you can stop auto retraining via a POST request to the `/trainer/config` endpoint. This endpoint takes these parameters:
 
 
 
-* `kong_entity`: The route_id or service_id that you would like to turn on or off auto-training.
+* `kong_entity`: The route_id or service_id that you would like to turn auto-training on or off for.
 * `method`: One of values: GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE. Specifying a method will restrict the rule being made on auto-training to only traffic matching the method specified. When this value is null, all traffic from all methods will be included in the rule.
-* `enable`: True or False, where true means auto-training is on and false means auto-training is off for the `kong_entity` specified.
+* `enable`: `true` or `false`, where true means auto-training is on and false means auto-training is off for the `kong_entity` specified.
 
 
 
@@ -159,24 +161,24 @@ curl -d '{"kong_entity":"your-route-id", "enable":false}' \
  -X POST http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/trainer/config
 ```
 
-Similarly, if you turned off auto-training for a route and feel like turning it back on, you can post to /trainer/config with enable = true.
+Similarly, if you turned off auto-training for a route and feel like turning it back on, you can post to `/trainer/config` with `"enable": true`.
 
 
-These configurations will only apply to training started by Immunity's auto-training schedule. Other training requests made by /trainer won't be affected by this configuration.
+These configurations will only apply to training started by Immunity's auto-training schedule. Other training requests made to `/trainer` will not be affected by this configuration.
 
 #### Viewing Configuration Rules
 
-To see all of your configured training rules, just create a get request to /trainer/config like this:
+To see all of your configured training rules, just create a GET request to `/trainer/config` like this:
 
 ```
 curl -X GET http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/trainer/config
 ```
 
-A list of all your rules will be returned, where `kong_entity` refers to the `service_id` or `route_id` the rule applies to, and enabled is a true or false value.
+A list of all your rules will be returned, where `kong_entity` refers to the `service_id` or `route_id` the rule applies to, and `enabled` is a true or false value.
 
 #### Resetting or Deleting Configured Rules
 
-To delete a single auto-train rule that you created, you can send a delete request to /trainer/config with a `kong_entity` parameter and value of the `service_id` or `route_id` of the rule you would like to delete.
+To delete a single auto-train rule that you created, you can send a delete request to `/trainer/config` with a `kong_entity` parameter and value of the `service_id` or `route_id` of the rule you would like to delete.
 
 ```
 curl -d '{"kong_entity":"your-route-id"}' \
@@ -187,7 +189,7 @@ curl -d '{"kong_entity":"your-route-id"}' \
 Without a rule established, Immunity will default to auto-training. In other words, once you delete a configured rule, Immunity will continue or start auto-training on the route or service of the deleted rule.
 
 
-If you would like to delete all the configurations you create, you can do so by sending an empty DELETE request to /trainer/config like this:
+If you would like to delete all the configurations you create, you can do so by sending an empty DELETE request to `/trainer/config` like this:
 
 ```
 curl -X http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/trainer/config
@@ -414,7 +416,7 @@ Once one specific Slack configuration rule is created for a given Slack endpoint
 
 #### Seeing your configured Rules
 
-Configured rules can get complicated. To see all the slack rules and slack you have configured, make a GET request to /notifications/slack/config like this:
+Configured rules can get complicated. To see all the slack rules and slack you have configured, make a GET request to `/notifications/slack/config` like this:
 
 ```
 curl -X GET http://<COLLECTOR_HOST>:<COLLECTOR_PORT>/notifications/slack/config
@@ -439,7 +441,7 @@ Which will return a json object where each key is an endpoint configured its val
 
 #### Disabling a Rule
 
-You might want to temporarily disable a rule you created. No problem, simply make the same POST request to /notifications/slack/config and add or change the enable parameter to false. Using the same example from above, let's set the configuration on [www.your-slack-webhook.com](http://www.your-slack-webhook.com/) on `my-service-1-id` to false.
+You might want to temporarily disable a rule you created. No problem, simply make the same POST request to `/notifications/slack/config` and add or change the enable parameter to false. Using the same example from above, let's set the configuration on [www.your-slack-webhook.com](http://www.your-slack-webhook.com/) on `my-service-1-id` to false.
 
 ```
 curl -d '{"endpoint":"www.your-slack-webhook.com",
@@ -451,9 +453,9 @@ curl -d '{"endpoint":"www.your-slack-webhook.com",
 
 It's important when disabling a rule to use the exact same specification parameter values (kong_entity, severity, and alert_type) that were used to create the rule.
 
-### Deleting a Rule
+#### Deleting a Rule
 
-Sometimes you want to delete a rule. Functionally this is the same as disabling a rule in the sense that notifications will no longer be sent as the deleted or disabled rule specified. To delete a configuration rule, send a DELETE request to /notifications/slack/config, and just like with disabling rules, make sure you're passing the correct values to the configuration specifying parameters (kong_entity, severity, and alert_type). With the same example from above that disabled the config rule for `my-service-1-id`, a DELETE would look like:
+Sometimes you want to delete a rule. Functionally this is the same as disabling a rule in the sense that notifications will no longer be sent as the deleted or disabled rule specified. To delete a configuration rule, send a DELETE request to `/notifications/slack/config`, and just like with disabling rules, make sure you're passing the correct values to the configuration specifying parameters (kong_entity, severity, and alert_type). With the same example from above that disabled the config rule for `my-service-1-id`, a DELETE would look like:
 
 ```
 curl -d '{"endpoint":"www.your-slack-webhook.com",
@@ -464,13 +466,13 @@ curl -d '{"endpoint":"www.your-slack-webhook.com",
 
 ### Clean Up the Data
 
-Collector will clean the amount of HARs stored daily up to the max number of hars specified in the environment variable `MAX_HARS_STORAGE` and tables with extracted information to a max of two weeks of data. This means that at any day, the max number of HARs stored is the `MAX_HARS_STORAGE` + days_incoming_number_of_hars. If no `MAX_HARS_STORAGE` is specified, collector defaults to keeping two million hars in the database.
+Collector will clean the amount of HARs stored daily up to the max number of HARs specified in the environment variable `MAX_HARS_STORAGE` and tables with extracted information to a max of two weeks of data. This means that at any day, the max number of HARs stored is the `MAX_HARS_STORAGE` + days_incoming_number_of_hars. If no `MAX_HARS_STORAGE` is specified, collector defaults to keeping two million hars in the database.
 
 
 You can set your own value of `MAX_HARS_STORAGE` by setting the app environment variable through whatever means you've been deploying collector.
 
 
-Additionally, collector provides an endpoint to delete the HARs data at /clean-hars. This endpoint accepts get and post and takes one parameter `max_hars_storage` which will delete all hars until only the value passed with `max_hars_storage` remains and contains the most recent HARs added to the database. If no value is passed to `max_hars_storage`, it will clean the database to the default value set with the environment variable `MAX_HARS_STORAGE`. An example of using this endpoint with cURL looks like this:
+Additionally, collector provides an endpoint to delete the HARs data at `/clean-hars`. This endpoint accepts GET and POST and takes one parameter `max_hars_storage` which will delete all HARs until only the value passed with `max_hars_storage` remains and contains the most recent HARs added to the database. If no value is passed to `max_hars_storage`, it will clean the database to the default value set with the environment variable `MAX_HARS_STORAGE`. An example of using this endpoint with cURL looks like this:
 
 ```
 curl -d '{"max_hars_storage":10000} \
